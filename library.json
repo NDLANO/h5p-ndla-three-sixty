@@ -1,6 +1,6 @@
 {
-  "machineName": "H5P.ThreeSixty",
-  "title": "Three Sixty",
+  "machineName": "H5P.NDLAThreeSixty",
+  "title": "NDL Three Sixty",
   "description": "The 360 degree panorama viewer with support for virtual reality.",
   "license": "MIT",
   "author": "Joubel AS (icc)",

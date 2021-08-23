@@ -1,4 +1,4 @@
-H5P.ThreeSixty = (function (EventDispatcher, THREE) {
+H5P.NDLAThreeSixty = (function (EventDispatcher, THREE) {
 
   /**
    * Convert deg to rad
@@ -14,7 +14,7 @@ H5P.ThreeSixty = (function (EventDispatcher, THREE) {
   /**
    * The 360 degree panorama viewer with support for virtual reality.
    *
-   * @class H5P.ThreeSixty
+   * @class H5P.NDLAThreeSixty
    * @extends H5P.EventDispatcher
    * @param {DOMElement} sourceElement video or image source
    * @param {Object} options
@@ -25,8 +25,8 @@ H5P.ThreeSixty = (function (EventDispatcher, THREE) {
    * @param {number} options.segments
    * @param {Function} [sourceNeedsUpdate] Determines if the source texture needs to be rerendered.
    */
-  function ThreeSixty(sourceElement, options, sourceNeedsUpdate) {
-    /** @alias H5P.ThreeSixty# */
+  function NDLAThreeSixty(sourceElement, options, sourceNeedsUpdate) {
+    /** @alias H5P.NDLAThreeSixty# */
     var self = this;
 
     // Initialize event inheritance
