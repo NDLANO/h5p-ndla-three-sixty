@@ -25,8 +25,8 @@ H5P.NDLAThreeSixty = (function (EventDispatcher, THREE) {
    * @param {number} options.segments
    * @param {Function} [sourceNeedsUpdate] Determines if the source texture needs to be rerendered.
    */
-  function NDLAThreeSixty(sourceElement, options, sourceNeedsUpdate) {
-    /** @alias H5P.NDLAThreeSixty# */
+  function ThreeSixty(sourceElement, options, sourceNeedsUpdate) {
+    /** @alias H5P.ThreeSixty# */
     var self = this;
 
     // Initialize event inheritance
