@@ -239,8 +239,11 @@ H5P.NDLAThreeSixty = (function (EventDispatcher, THREE) {
      * Useful for changing scenes.
      * @param {DOMElement} element video or image source
      */
-    self.setSourceElement = function (element) {
+    self.setSourceElement = function (element, panorama) {
       sourceElement = element;
+      options.isPanorama = panorama;
+      camera.fov = options.isPanorama ? 53 : 75;
+      camera.updateProjectionMatrix ()
     };
 
     /**
