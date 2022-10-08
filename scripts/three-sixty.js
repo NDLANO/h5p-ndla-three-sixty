@@ -243,7 +243,8 @@ H5P.NDLAThreeSixty = (function (EventDispatcher, THREE) {
       sourceElement = element;
       options.isPanorama = panorama;
       camera.fov = options.isPanorama ? 53 : 75;
-      camera.updateProjectionMatrix ()
+      camera.updateProjectionMatrix ();
+      cameraControls.setPanorama(panorama);
     };
 
     /**
@@ -873,6 +874,19 @@ H5P.NDLAThreeSixty = (function (EventDispatcher, THREE) {
     element.tabIndex = '0';
     element.setAttribute('role', 'application');
     element.addEventListener('focus', focus, false);
+
+    /**
+     * Set panorama state for controls.
+     *
+     * @param {boolean} state If true/false is/is not in panorama mode.
+     */
+    self.setPanorama = function(state) {
+      if (typeof state !== 'boolean') {
+        return;
+      }
+
+      isPanorama = state;
+    };
   }
 
   /**
