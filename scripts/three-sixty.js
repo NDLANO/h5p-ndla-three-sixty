@@ -115,8 +115,10 @@ H5P.NDLAThreeSixty = (function (EventDispatcher, THREE) {
       if (preventDeviceOrientation) {
         return; // Prevent other codes from setting position while the user is dragging
       }
+
       camera.rotation.y = -yaw;
-      camera.rotation.x = pitch;
+      camera.rotation.x = options.isPanorama ? 0 : pitch;
+
       self.trigger('movestop', { // TODO: Figure out why this is here and what it does
         pitch: pitch,
         yaw: yaw,
@@ -198,8 +200,8 @@ H5P.NDLAThreeSixty = (function (EventDispatcher, THREE) {
     const css2dRenderer = add(new THREE.CSS2DRenderer);
     const css3dRenderer = add(new THREE.CSS3DRenderer);
     css2dRenderer.domElement.classList.add('h5p-three-sixty-2d');
-    css3dRenderer.domElement.classList.add('h5p-three-sixty-3d'); 
-    
+    css3dRenderer.domElement.classList.add('h5p-three-sixty-3d');
+
     /**
      * Start rendering scene
      */
@@ -211,7 +213,7 @@ H5P.NDLAThreeSixty = (function (EventDispatcher, THREE) {
           // onClick, etc and pseudo-classes (hover etc) on all elements in scene
           css2dRenderer.domElement.insertBefore(css3dRenderer.domElement, css2dRenderer.domElement.firstChild);
         });
-        
+
         render();
       }
     };
@@ -350,9 +352,9 @@ H5P.NDLAThreeSixty = (function (EventDispatcher, THREE) {
     };
 
     /**
-     * Used to stop camera from centering on elements upon focus 
+     * Used to stop camera from centering on elements upon focus
      *
-     * @param {boolean} setPreventCameraMovement 
+     * @param {boolean} setPreventCameraMovement
      */
     this.setPreventCameraMovement = (setPreventCameraMovement) => {
       this.preventCameraMovement = setPreventCameraMovement;
@@ -374,7 +376,7 @@ H5P.NDLAThreeSixty = (function (EventDispatcher, THREE) {
      * @param {Element} element
      * @return {THREE.CSS3DObject}
      */
-    this.find = (element) => 
+    this.find = (element) =>
       threeElements.find(threeElement => threeElement.element === element);
 
     /**
