@@ -11,13 +11,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/otacke/h5p-boilerplate-snordian.git"
+    "url": "git+https://github.com/NDLANO/h5p-ndla-three-sixty.git"
   },
   "keywords": [
     "h5p",
     "library"
   ],
-  "author": "Oliver Tacke",
+  "author": "Joubel AS (icc), NDLA",
   "license": "MIT",
   "type": "module",
   "devDependencies": {
