@@ -31,7 +31,7 @@
 .h5p-three-sixty-camera {
   pointer-events: none;
 
-  & > * {
+  &> * {
     pointer-events: auto;
   }
 }
