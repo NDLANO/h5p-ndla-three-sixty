@@ -1,29 +1,32 @@
+import Util from '@services/util';
+
 /**
  * Class for manipulating element position using different controls.
  * @class
  * @param {H5P.ThreeJS.Object3D} element ThreeJS Object3D.
- * @param {number} [friction] Determines the speed of the movement, higher = slower.
- * @param {boolean} [shouldInvert] Invert controls for camera.
- * @param {boolean} [isCamera] Is camera.
- * @param {boolean} [isPanorama] If true, scene is a panarama scene.
+ * @param {object} [options] Options.
+ * @param {number} [options.friction] Determines the speed of the movement, higher = slower.
+ * @param {boolean} [options.shouldInvert] Invert controls for camera.
+ * @param {boolean} [options.isCamera] Is camera.
+ * @param {boolean} [options.isPanorama] If true, scene is a panarama scene.
  */
 export default class PositionControls extends H5P.EventDispatcher {
 
-  constructor(element, friction = 800, shouldInvert, isCamera = false, isPanorama = false) {
+  constructor(element, options = {}) {
     super();
 
     this.element = element;
-    this.friction = friction;
-    this.invert = shouldInvert ? 1 : -1;
-    this.isCamera = isCamera;
-    this.isPanorama = isPanorama;
 
+    this.options = Util.extend({
+      friction: 800,
+      shouldInvert: false,
+      isCamera: false,
+      isPanorama: false
+    }, options);
+
+    this.invert = options.shouldInvert ? 1 : -1;
     this.alpha = 0; // From 0 to 2pi
     this.beta = 0; // From -pi/2 to pi/2
-
-    this.startPosition; // Where the element is when it starts moving
-    this.prevPosition;
-
     this.keyStillDown = null; // Used to determine if movement key is held down.
 
     [
@@ -44,6 +47,40 @@ export default class PositionControls extends H5P.EventDispatcher {
   }
 
   /**
+   * @returns {number} Alpha value.
+   */
+  getAlpha() {
+    return this.alpha;
+  }
+
+  /**
+   * @returns {number} Beta value.
+   */
+  getBeta() {
+    return this.beta;
+  }
+
+  /**
+   * @param {string} [control] Check for specific control
+   * @returns {boolean} True, if is moving.
+   */
+  isMoving(control) {
+    return control ? this.controlActive === control : !!this.controlActive;
+  }
+
+  /**
+   * Set panorama state for controls.
+   * @param {boolean} state If true/false is/is not in panorama mode.
+   */
+  setPanorama(state) {
+    if (typeof state !== 'boolean') {
+      return;
+    }
+
+    this.options.isPanorama = state;
+  }
+
+  /**
    * Generic initialization when movement starts.
    * @param {number} x Initial x coordinate
    * @param {number} y Initial y coordinate
@@ -57,7 +94,10 @@ export default class PositionControls extends H5P.EventDispatcher {
     }
 
     // Trigger event when start moving, give other components chance to cancel
-    const eventData = { element: this.element, isCamera: this.isCamera };
+    const eventData = {
+      element: this.element,
+      isCamera: this.options.isCamera
+    };
 
     if (event) {
       eventData.target = event.target;
@@ -67,6 +107,7 @@ export default class PositionControls extends H5P.EventDispatcher {
     movestartEvent.defaultPrevented = false;
 
     this.trigger(movestartEvent);
+
     if (movestartEvent.defaultPrevented) {
       return false; // Another component doesn't want us to start moving
     }
@@ -77,6 +118,7 @@ export default class PositionControls extends H5P.EventDispatcher {
     this.beta = 0;
 
     this.controlActive = control;
+
     return true;
   }
 
@@ -100,7 +142,7 @@ export default class PositionControls extends H5P.EventDispatcher {
     // Prepare move event
     const moveEvent = new H5P.Event('move');
 
-    if (this.isPanorama) {
+    if (this.options.isPanorama) {
       deltaY = 0;
     }
 
@@ -110,14 +152,9 @@ export default class PositionControls extends H5P.EventDispatcher {
     this.alpha = (this.alpha + moveEvent.alphaDelta) % (Math.PI * 2); // Max 360
     this.beta = (this.beta + moveEvent.betaDelta) % (Math.PI * 2); // Max 180
 
-    // Max 90 degrees up and down on pitch  TODO: test
+    // Max 90 degrees up and down on pitch
     const ninety = Math.PI / 2;
-    if (this.beta > ninety) {
-      this.beta = ninety;
-    }
-    else if (this.beta < -ninety) {
-      this.beta = -ninety;
-    }
+    this.beta = Math.max(-ninety, Math.min(this.beta, ninety));
 
     moveEvent.alpha = this.alpha;
     moveEvent.beta = this.beta;
@@ -127,13 +164,12 @@ export default class PositionControls extends H5P.EventDispatcher {
   }
 
   /**
-   * Handle mouse down
+   * Handle mouse down.
    * @param {MouseEvent} event Mouse event.
    */
   handleMouseDown(event) {
-    const isLeftClick = event.which === 1;
-    if (!isLeftClick) {
-      return;
+    if (event.button !== 0) {
+      return; // Not left mouse button
     }
 
     if (!this.start(event.pageX, event.pageY, 'mouse', event)) {
@@ -174,7 +210,7 @@ export default class PositionControls extends H5P.EventDispatcher {
     }
 
     if (xDiff !== 0 || yDiff !== 0) {
-      this.move(xDiff, yDiff, this.friction);
+      this.move(xDiff, yDiff, this.options.friction);
     }
   }
 
@@ -183,6 +219,7 @@ export default class PositionControls extends H5P.EventDispatcher {
    */
   handleMouseUp() {
     this.prevPosition = null;
+
     window.removeEventListener('mousemove', this.handleMouseMove, false);
     window.removeEventListener('mouseup', this.handleMouseUp, false);
 
@@ -195,8 +232,8 @@ export default class PositionControls extends H5P.EventDispatcher {
    */
   handleTouchStart(event) {
     if (!this.start(
-      event.changedTouches[0].pageX, event.changedTouches[0].pageY, 'touch')
-    ) {
+      event.changedTouches[0].pageX, event.changedTouches[0].pageY, 'touch'
+    )) {
       return;
     }
 
@@ -221,14 +258,20 @@ export default class PositionControls extends H5P.EventDispatcher {
         y: this.startPosition.y,
       };
     }
+
     const deltaX = event.changedTouches[0].pageX - this.prevPosition.x;
     const deltaY = event.changedTouches[0].pageY - this.prevPosition.y;
+
     this.prevPosition = {
       x: event.changedTouches[0].pageX,
       y: event.changedTouches[0].pageY,
     };
 
-    this.move(deltaX, deltaY, this.friction * 0.75);
+    this.move(
+      deltaX,
+      deltaY,
+      this.options.friction * PositionControls.FRICTION_FACTOR_TOUCH
+    );
   }
 
   /**
@@ -247,7 +290,11 @@ export default class PositionControls extends H5P.EventDispatcher {
    * @param {KeyboardEvent} event Keyboard event.
    */
   handleKeyDown(event) {
-    const isArrowKey = [37, 100, 38, 104, 39, 102, 40, 98].includes(event.which);
+    const isArrowKey = [
+      'ArrowLeft', 'Numpad4', 'ArrowRight', 'Numpad6',
+      'ArrowUp', 'Numpad8', 'ArrowDown', 'Numpad2'
+    ].includes(event.code);
+
     if (!isArrowKey) {
       return;
     }
@@ -255,7 +302,7 @@ export default class PositionControls extends H5P.EventDispatcher {
     if (this.keyStillDown === null) {
       // Try to start movement
       if (this.start(0, 0, 'keyboard')) {
-        this.keyStillDown = event.which;
+        this.keyStillDown = event.code;
         this.element.addEventListener('keyup', this.handleKeyUp, false);
       }
     }
@@ -264,36 +311,40 @@ export default class PositionControls extends H5P.EventDispatcher {
     event.preventDefault();
     event.stopPropagation();
 
-    if (this.keyStillDown !== event.which) {
+    if (this.keyStillDown !== event.code) {
       return; // Not the same key as we started with
     }
 
-    const delta = {
-      x: 0,
-      y: 0
-    };
+    const delta = { x: 0, y: 0 };
 
     // Update movement in approperiate direction
-    switch (event.which) {
-      case 37:
-      case 100:
+    switch (event.code) {
+      case 'ArrowLeft': // Intentional fallthrough
+      case 'Numpad4':
         delta.x += this.invert;
         break;
-      case 38:
-      case 104:
+
+      case 'ArrowUp': // Intentional fallthrough
+      case 'Numpad8':
         delta.y += this.invert;
         break;
-      case 39:
-      case 102:
+
+      case 'ArrowRight': // Intentional fallthrough
+      case 'Numpad6':
         delta.x -= this.invert;
         break;
-      case 40:
-      case 98:
+
+      case 'ArrowDown': // Intentional fallthrough
+      case 'Numpad2':
         delta.y -= this.invert;
         break;
     }
 
-    this.move(delta.x, delta.y, this.friction * 0.025);
+    this.move(
+      delta.x,
+      delta.y,
+      this.options.friction * PositionControls.FRICTION_FACTOR_KEYBOARD
+    );
   }
 
   /**
@@ -314,38 +365,10 @@ export default class PositionControls extends H5P.EventDispatcher {
     event.preventDefault();
     event.target.focus({ preventScroll: true });
   }
-
-  /**
-   * @returns {number} Alpha value.
-   */
-  getAlpha() {
-    return this.alpha;
-  }
-
-  /**
-   * @returns {number} Beta value.
-   */
-  getBeta() {
-    return this.beta;
-  }
-
-  /**
-   * @param {string} [control] Check for specific control
-   * @returns {boolean} True, if is moving.
-   */
-  isMoving(control) {
-    return control ? this.controlActive === control : !!this.controlActive;
-  }
-
-  /**
-   * Set panorama state for controls.
-   * @param {boolean} state If true/false is/is not in panorama mode.
-   */
-  setPanorama(state) {
-    if (typeof state !== 'boolean') {
-      return;
-    }
-
-    this.isPanorama = state;
-  }
 }
+
+/** @constant {number} FRICTION_FACTOR_KEYBOARD Friction factor for keyboard movement. */
+PositionControls.FRICTION_FACTOR_KEYBOARD = 0.025;
+
+/** @constant {number} FRICTION_FACTOR_KEYBOARD Friction factor for touch movement. */
+PositionControls.FRICTION_FACTOR_TOUCH = 0.75;
