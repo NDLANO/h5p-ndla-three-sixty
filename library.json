@@ -14,12 +14,12 @@
   },
   "preloadedJs": [
     {
-      "path": "scripts/three-sixty.js"
+      "path": "dist/h5p-ndla-three-sixty.js"
     }
   ],
   "preloadedCss": [
     {
-      "path": "styles/three-sixty.css"
+      "path": "dist/h5p-ndla-three-sixty.css"
     }
   ],
   "preloadedDependencies": [
