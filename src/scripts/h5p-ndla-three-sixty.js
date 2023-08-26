@@ -332,11 +332,9 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
    * @param {string} label Label.
    */
   setAriaLabel(label) {
-    // TODO: Separate setting for document role?
     this.css2dRenderer.domElement.setAttribute('aria-label', label);
     this.css2dRenderer.domElement.setAttribute('role', 'document');
 
-    // TODO: Separate setting for document role?
     this.css3dRenderer.domElement.setAttribute('aria-label', label);
     this.css3dRenderer.domElement.setAttribute('role', 'document');
   }
