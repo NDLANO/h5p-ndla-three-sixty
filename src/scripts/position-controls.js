@@ -1,17 +1,17 @@
 import Util from '@services/util';
 
-/**
- * Class for manipulating element position using different controls.
- * @class
- * @param {H5P.ThreeJS.Object3D} element ThreeJS Object3D.
- * @param {object} [options] Options.
- * @param {number} [options.friction] Determines the speed of the movement, higher = slower.
- * @param {boolean} [options.shouldInvert] Invert controls for camera.
- * @param {boolean} [options.isCamera] Is camera.
- * @param {boolean} [options.isPanorama] If true, scene is a panarama scene.
- */
 export default class PositionControls extends H5P.EventDispatcher {
 
+  /**
+   * Class for manipulating element position using different controls.
+   * @class
+   * @param {H5P.ThreeJS.Object3D} element ThreeJS Object3D.
+   * @param {object} [options] Options.
+   * @param {number} [options.friction] Determines the speed of the movement, higher = slower.
+   * @param {boolean} [options.shouldInvert] Invert controls for camera.
+   * @param {boolean} [options.isCamera] Is camera.
+   * @param {boolean} [options.isPanorama] If true, scene is a panarama scene.
+   */
   constructor(element, options = {}) {
     super();
 

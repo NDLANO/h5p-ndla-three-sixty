@@ -292,19 +292,13 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
     if (this.sphere) {
       this.disposeSphere();
     }
-    this.createSphere();
 
-    this.triggerFirstRenderEvent = true;
-  }
-
-  /**
-   * Update cylinder.
-   */
-  updateCylinder() {
-    if (this.sphere) {
-      this.disposeSphere();
+    if (this.options.isPanorama) {
+      this.createCylinder();
     }
-    this.createCylinder();
+    else {
+      this.createSphere();
+    }
 
     this.triggerFirstRenderEvent = true;
   }
