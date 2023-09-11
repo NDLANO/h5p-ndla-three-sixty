@@ -44,7 +44,8 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
      * // TODO: ThreeSixty should not have to deal with this, this belongs in a
      * a separate collection/array class. (ThreeSixty should just add or remove
      * elements from the 3d world, not keep an indexed mapping for the
-     * consumer/user of this library.)
+     * consumer/user of this library.). Originally added by H5P Group. True, but
+     * not urgent now.
      */
     this.threeElements = [];
     this.preventCameraMovement = false;
