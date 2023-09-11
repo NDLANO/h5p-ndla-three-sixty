@@ -40,12 +40,13 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
 
     this.fieldOfView = options.isPanorama ? FOV_PANORAMA : FOV_SPHERE;
 
-    // TODO: ThreeSixty should not have to deal with this, this belongs in a
-    // a separate collection/array class. (ThreeSixty should just add or remove
-    // elements from the 3d world, not keep an indexed mapping for the
-    // consumer/user of this library.)
-    this.threeElements = [];
-
+    /*
+     * // TODO: ThreeSixty should not have to deal with this, this belongs in a
+     * a separate collection/array class. (ThreeSixty should just add or remove
+     * elements from the 3d world, not keep an indexed mapping for the
+     * consumer/user of this library.)
+     * this.threeElements = [];
+     */
     this.preventCameraMovement = false;
     this.renderLoopId = null;
 
@@ -71,6 +72,30 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
    */
   getRenderers() {
     return [this.css2dRenderer.domElement, this.css3dRenderer.domElement];
+  }
+
+  /**
+   * Build renderers.
+   */
+  buildRenderers() {
+    this.renderer = new H5P.ThreeJS.WebGLRenderer();
+    this.renderer.domElement.classList.add('h5p-three-sixty-scene');
+    // Workaround for touchevent not cancelable when CSS 'perspective' is set.
+    this.renderer.domElement.addEventListener('touchmove', () => {});
+    // This appears to be a bug in Chrome.
+    this.element.append(this.renderer.domElement);
+
+    this.css2dRenderer = new H5P.ThreeJS.CSS2DRenderer();
+    this.css2dRenderer.domElement.classList.add(
+      'h5p-three-sixty-scene', 'h5p-three-sixty-2d', 'h5p-three-sixty-controls'
+    );
+    this.element.append(this.css2dRenderer.domElement);
+
+    this.css3dRenderer = new H5P.ThreeJS.CSS3DRenderer();
+    this.css3dRenderer.domElement.classList.add(
+      'h5p-three-sixty-scene', 'h5p-three-sixty-3d', 'h5p-three-sixty-controls'
+    );
+    this.element.append(this.css3dRenderer.domElement);
   }
 
   /**
@@ -149,10 +174,6 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
 
     this.camera.rotation.y = -yaw;
     this.camera.rotation.x = this.options.isPanorama ? 0 : pitch;
-
-    // TODO: Figure out why this is here and what it does
-    // Commenting this out. Let's see if somebody notices ...
-    // this.trigger('movestop', { pitch: pitch, yaw: yaw });
   }
 
   /**
@@ -271,7 +292,6 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
 
   /**
    * Find the threeElement for the given element.
-   * TODO: Move into a separate collection handling class
    * @param {Element} element Element.
    * @returns {H5P.ThreeJS.CSS3DObject} Corresponding ThreeJS CSS3DObject.
    */
@@ -394,7 +414,6 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
 
   /**
    * Set element's position in the 3d world, always facing the camera.
-   * TODO: Check why this was build static and why external code should use it.
    * @param {H5P.ThreeJS.CSS3DObject} threeElement CSS3DObject.
    * @param {object} position Position object.
    * @param {number} position.yaw Radians from 0 to Math.PI*2 (0-360).
