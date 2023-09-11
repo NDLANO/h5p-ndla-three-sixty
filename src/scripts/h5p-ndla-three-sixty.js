@@ -75,30 +75,6 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
   }
 
   /**
-   * Build renderers.
-   */
-  buildRenderers() {
-    this.renderer = new H5P.ThreeJS.WebGLRenderer();
-    this.renderer.domElement.classList.add('h5p-three-sixty-scene');
-    // Workaround for touchevent not cancelable when CSS 'perspective' is set.
-    this.renderer.domElement.addEventListener('touchmove', () => {});
-    // This appears to be a bug in Chrome.
-    this.element.append(this.renderer.domElement);
-
-    this.css2dRenderer = new H5P.ThreeJS.CSS2DRenderer();
-    this.css2dRenderer.domElement.classList.add(
-      'h5p-three-sixty-scene', 'h5p-three-sixty-2d', 'h5p-three-sixty-controls'
-    );
-    this.element.append(this.css2dRenderer.domElement);
-
-    this.css3dRenderer = new H5P.ThreeJS.CSS3DRenderer();
-    this.css3dRenderer.domElement.classList.add(
-      'h5p-three-sixty-scene', 'h5p-three-sixty-3d', 'h5p-three-sixty-controls'
-    );
-    this.element.append(this.css3dRenderer.domElement);
-  }
-
-  /**
    * Get the position the camera is currently pointing at.
    * @returns {object} Yaw and pitch of camera.
    */
