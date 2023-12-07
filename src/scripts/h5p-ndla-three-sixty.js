@@ -64,6 +64,7 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
     this.buildCamera(options.cameraStartPosition);
     this.buildRenderers();
     this.buildCameraControls();
+    this.buildZoomControls();
   }
 
   /**

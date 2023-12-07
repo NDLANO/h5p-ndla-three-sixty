@@ -2,6 +2,7 @@ import {
   CAMERA_NEAR, CAMERA_FAR, DEFAULT_FRICTION, DEFAULT_ROTATION_ORDER, MAX_PITCH
 } from '@services/constants';
 import PositionControls from '@scripts/position-controls';
+import ZoomControls from '@scripts/zoom-controls';
 import Util from '@services/util';
 
 /**
@@ -114,5 +115,13 @@ export default class Initialization {
 
       this.trigger(event);
     });
+  }
+
+  buildZoomControls() {
+    this.zoomControls = new ZoomControls(
+      this.camera, 
+      this.css2dRenderer.domElement,
+      this.options.isPanorama
+    );
   }
 }
