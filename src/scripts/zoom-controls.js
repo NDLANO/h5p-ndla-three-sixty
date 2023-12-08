@@ -37,8 +37,6 @@ export default class ZoomControls extends H5P.EventDispatcher {
     this.enableZoom = true;
     this.zoomSpeed = 1.0;
 
-    this.enablePan = false;
-
     // for reset
     //this.target0 = this.target.clone();
     //this.position0 = this.object.position.clone();
@@ -48,15 +46,13 @@ export default class ZoomControls extends H5P.EventDispatcher {
     this.dollyEnd = new H5P.ThreeJS.Vector2();
     this.dollyDelta = new H5P.ThreeJS.Vector2();
 
-    this.zoomChanged = false;
-
     // Register event listeners
-    //this.domElement.addEventListener('mousedown', this.onMouseDown.bind(this), false);
+    //domElement.addEventListener('mousedown', this.onMouseDown.bind(this), false);
     domElement.addEventListener('wheel', this.onMouseWheel.bind(this), false);
 
-    //this.domElement.addEventListener('touchstart', this.onTouchStart.bind(this), false);
-    //this.domElement.addEventListener('touchend', this.onTouchEnd.bind(this), false);
-    //this.domElement.addEventListener('touchmove', this.onTouchMove.bind(this), false);
+    domElement.addEventListener('touchstart', this.onTouchStart.bind(this), false);
+    //domElement.addEventListener('touchend', this.onTouchEnd.bind(this), false);
+    domElement.addEventListener('touchmove', this.onTouchMove.bind(this), false);
   }
 
   getZoomScale() {
@@ -88,7 +84,6 @@ export default class ZoomControls extends H5P.EventDispatcher {
     else if (this.object.isOrthographicCamera) {
       this.object.zoom = Math.max(this.minZoom, Math.min(this.maxZoom, this.object.zoom * dollyScale));
       this.object.updateProjectionMatrix();
-      this.zoomChanged = true;
     }
   }
 
@@ -108,7 +103,6 @@ export default class ZoomControls extends H5P.EventDispatcher {
     else if (this.object.isOrthographicCamera) {
       this.object.zoom = Math.max(this.minZoom, Math.min(this.maxZoom, this.object.zoom / dollyScale));
       this.object.updateProjectionMatrix();
-      this.zoomChanged = true;
     }
   }
 
@@ -138,49 +132,43 @@ export default class ZoomControls extends H5P.EventDispatcher {
     }
   }
 
-  handleTouchStartDollyPan(event) {
-    if (this.enableZoom) {
-      var dx = event.touches[0].pageX - event.touches[1].pageX;
-      var dy = event.touches[0].pageY - event.touches[1].pageY;
+  handleTouchStartDolly(event) {
+    var dx = event.touches[0].pageX - event.touches[1].pageX;
+    var dy = event.touches[0].pageY - event.touches[1].pageY;
 
-      var distance = Math.sqrt(dx * dx + dy * dy);
+    var distance = Math.sqrt(dx * dx + dy * dy);
 
-      this.dollyStart.set(0, distance);
-    }
+    this.dollyStart.set(0, distance);
+  }
 
-    if (this.enablePan) {
-      var x = 0.5 * (event.touches[0].pageX + event.touches[1].pageX);
-      var y = 0.5 * (event.touches[0].pageY + event.touches[1].pageY);
+  handleTouchMoveDolly(event) {    
+    var dx = event.touches[0].pageX - event.touches[1].pageX;
+    var dy = event.touches[0].pageY - event.touches[1].pageY;
 
-      this.panStart.set(x, y);
+    var distance = Math.sqrt(dx * dx + dy * dy);
+
+    this.dollyEnd.set(0, distance);
+
+    this.dollyDelta.set(0, Math.pow(this.dollyEnd.y / this.dollyStart.y, this.zoomSpeed));  
+      
+    if (this.dollyDelta.y < 1) {
+      this.dollyOut();
+    } else if (this.dollyDelta.y > 1) {
+      this.dollyIn();
     }
   }
 
-  handleTouchMoveDollyPan(event) {
-    if (this.enableZoom) {
-      var dx = event.touches[0].pageX - event.touches[1].pageX;
-      var dy = event.touches[0].pageY - event.touches[1].pageY;
-
-      var distance = Math.sqrt(dx * dx + dy * dy);
-
-      this.dollyEnd.set(0, distance);
-
-      this.dollyDelta.subVectors(this.dollyEnd, this.dollyStart);
-
-      if (this.dollyDelta.y > 0) {
-        this.dollyOut();
-      } else if (this.dollyDelta.y < 0) {
-        this.dollyIn();
-      }
-
-      this.dollyStart.copy(this.dollyEnd);
-    }
+  handleTouchEnd(event) {
+    // no-op
   }
 
   onTouchStart(event) {
     if (this.enableZoom === false) return;
 
-    this.handleTouchStartDollyPan(event);
+    // Only zoom if two fingers are used, pointer-controls will handle one finger movement
+    if (event.touches.length === 2) {
+      this.handleTouchStartDolly(event);
+    }
   }
 
   onTouchMove(event) {
@@ -189,10 +177,9 @@ export default class ZoomControls extends H5P.EventDispatcher {
     event.preventDefault();
     event.stopPropagation();
 
+    // Only zoom if two fingers are used, pointer-controls will handle one finger movement
     if (event.touches.length === 2) {
-      if (this.enablePan) {
-        this.handleTouchMoveDollyPan(event);
-      }
+      this.handleTouchMoveDolly(event);
     }
   }
 
