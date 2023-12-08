@@ -43,6 +43,7 @@ export default class ZoomControls extends H5P.EventDispatcher {
     element.addEventListener('wheel', this.onMouseWheel.bind(this), false);
     element.addEventListener('touchstart', this.onTouchStart.bind(this), false);
     element.addEventListener('touchmove', this.onTouchMove.bind(this), false);
+    element.addEventListener('keydown', this.onKeyDown.bind(this), false);
   }
 
   /**
@@ -148,6 +149,21 @@ export default class ZoomControls extends H5P.EventDispatcher {
   }
 
   /**
+   * Handle key down.
+   * @param {KeyboardEvent} event Keyboard event.
+   */
+  handleKeyDown(event) {
+    switch (event.key) {
+      case '-': // minus key
+        this.dollyOut();
+        break;
+      case '+': // plus key
+        this.dollyIn();
+        break;
+    }
+  }
+
+  /**
    * Handle touch start.
    * @param {TouchEvent} event Touch event.
    */
@@ -197,5 +213,15 @@ export default class ZoomControls extends H5P.EventDispatcher {
     event.stopPropagation();
 
     this.handleMouseWheel(event);
+  }
+
+  /**
+   * Handle key down.
+   * @param {KeyboardEvent} event Keyboard event.
+   */
+  onKeyDown(event) {
+    if (this.enableZoom === false) return;
+
+    this.handleKeyDown(event);
   }
 }
