@@ -1,4 +1,4 @@
-import { FOV_PANORAMA, FOV_SPHERE } from "@services/constants";
+import { FOV_PANORAMA, FOV_SPHERE, ZOOM_MIN, ZOOM_MAX } from '@services/constants';
 
 /** 
  * Zoom controls for ThreeJS based on OrbitControls.js
@@ -10,15 +10,15 @@ export default class ZoomControls extends H5P.EventDispatcher {
    * Class for manipulating element zoom using different controls.
    * @class
    * @param {object} object The camera object to manipulate.
-   * @param {object} domElement DOM element to listen for events on.
+   * @param {H5P.ThreeJS.Object3D} element DOM element of the ThreeJS object.
    * @param {boolean} isPanorama Whether the object is a panorama.
    */
-  constructor(object, domElement, isPanorama) {
+  constructor(object, element, isPanorama) {
     super();
 
     this.object = object;
 
-    this.domElement = (domElement !== undefined) ? domElement : document;
+    this.element = (element !== undefined) ? element : document;
 
     // Set to false to disable this control
     this.enabled = true;
@@ -28,33 +28,27 @@ export default class ZoomControls extends H5P.EventDispatcher {
     this.maxFov = isPanorama ? FOV_PANORAMA : FOV_SPHERE;
 
     // How far you can zoom in and out ( OrthographicCamera only )
-    this.minZoom = ZoomControls.ZOOM_MIN;
-    this.maxZoom = ZoomControls.ZOOM_MAX;
+    this.minZoom = ZOOM_MIN;
+    this.maxZoom = ZOOM_MAX;
 
-    // This option actually enables dollying in and out; left as "zoom" for
-    // backwards compatibility.
     // Set to false to disable zooming
     this.enableZoom = true;
     this.zoomSpeed = 1.0;
-
-    // for reset
-    //this.target0 = this.target.clone();
-    //this.position0 = this.object.position.clone();
-    //this.zoom0 = this.object.zoom;
 
     this.dollyStart = new H5P.ThreeJS.Vector2();
     this.dollyEnd = new H5P.ThreeJS.Vector2();
     this.dollyDelta = new H5P.ThreeJS.Vector2();
 
     // Register event listeners
-    //domElement.addEventListener('mousedown', this.onMouseDown.bind(this), false);
-    domElement.addEventListener('wheel', this.onMouseWheel.bind(this), false);
-
-    domElement.addEventListener('touchstart', this.onTouchStart.bind(this), false);
-    //domElement.addEventListener('touchend', this.onTouchEnd.bind(this), false);
-    domElement.addEventListener('touchmove', this.onTouchMove.bind(this), false);
+    element.addEventListener('wheel', this.onMouseWheel.bind(this), false);
+    element.addEventListener('touchstart', this.onTouchStart.bind(this), false);
+    element.addEventListener('touchmove', this.onTouchMove.bind(this), false);
   }
 
+  /**
+   * Get zoom scale.
+   * @returns {number} Zoom scale.
+   */
   getZoomScale() {
     return Math.pow(0.95, this.zoomSpeed);
   }
@@ -69,8 +63,7 @@ export default class ZoomControls extends H5P.EventDispatcher {
 
   /**
    * Dollies in the camera e.g. zoom in.
-   * @param {*} dollyScale 
-   * @returns 
+   * @param {number} dollyScale How much to dolly in.
    */
   dollyIn(dollyScale) {
     if (dollyScale === undefined) {
@@ -89,7 +82,7 @@ export default class ZoomControls extends H5P.EventDispatcher {
 
   /**
    * Dollies out the camera e.g. zoom out.
-   * @param {*} dollyScale 
+   * @param {number} dollyScale How much to dolly out.
    */
   dollyOut(dollyScale) {
     if (dollyScale === undefined) {
@@ -106,32 +99,23 @@ export default class ZoomControls extends H5P.EventDispatcher {
     }
   }
 
-  handleMouseDownDolly(event) {
-    this.dollyStart.set(event.clientX, event.clientY);
-  }
-
-  handleMouseMoveDolly(event) {
-    this.dollyEnd.set(event.clientX, event.clientY);
-
-    this.dollyDelta.subVectors(this.dollyEnd, this.dollyStart);
-
-    if (this.dollyDelta.y > 0) {
-      this.dollyIn();
-    } else if (this.dollyDelta.y < 0) {
-      this.dollyOut();
-    }
-
-    this.dollyStart.copy(this.dollyEnd);
-  }
-
+  /**
+   * Handle mouse wheel.
+   * @param {WheelEvent} event Mouse wheel event.
+   */
   handleMouseWheel(event) {
     if (event.deltaY < 0) {
       this.dollyIn(this.getZoomScale());
-    } else if (event.deltaY > 0) {
+    } 
+    else if (event.deltaY > 0) {
       this.dollyOut(this.getZoomScale());
     }
   }
 
+  /**
+   * Handle touch start.
+   * @param {TouchEvent} event Touch event.
+   */
   handleTouchStartDolly(event) {
     var dx = event.touches[0].pageX - event.touches[1].pageX;
     var dy = event.touches[0].pageY - event.touches[1].pageY;
@@ -141,6 +125,10 @@ export default class ZoomControls extends H5P.EventDispatcher {
     this.dollyStart.set(0, distance);
   }
 
+  /**
+   * Handle touch move.
+   * @param {TouchEvent} event Touch event.
+   */
   handleTouchMoveDolly(event) {    
     var dx = event.touches[0].pageX - event.touches[1].pageX;
     var dy = event.touches[0].pageY - event.touches[1].pageY;
@@ -153,15 +141,16 @@ export default class ZoomControls extends H5P.EventDispatcher {
       
     if (this.dollyDelta.y < 1) {
       this.dollyOut();
-    } else if (this.dollyDelta.y > 1) {
+    } 
+    else if (this.dollyDelta.y > 1) {
       this.dollyIn();
     }
   }
 
-  handleTouchEnd(event) {
-    // no-op
-  }
-
+  /**
+   * Handle touch start.
+   * @param {TouchEvent} event Touch event.
+   */
   onTouchStart(event) {
     if (this.enableZoom === false) return;
 
@@ -171,6 +160,10 @@ export default class ZoomControls extends H5P.EventDispatcher {
     }
   }
 
+  /**
+   * Handle touch move.
+   * @param {TouchEvent} event Touch event.
+   */
   onTouchMove(event) {
     if (this.enableZoom === false) return;
 
@@ -183,12 +176,20 @@ export default class ZoomControls extends H5P.EventDispatcher {
     }
   }
 
+  /**
+   * Handle touch end.
+   * @param {TouchEvent} event Touch event.
+   */
   onTouchEnd(event) {
     if (this.enableZoom === false) return;
 
     this.handleTouchEnd(event);
   }
 
+  /**
+   * Handle mouse wheel.
+   * @param {WheelEvent} event Mouse wheel event.
+   */
   onMouseWheel(event) {
     if (this.enableZoom === false) return;
 
@@ -198,9 +199,3 @@ export default class ZoomControls extends H5P.EventDispatcher {
     this.handleMouseWheel(event);
   }
 }
-
-/** @constant {number} ZOOM_MIN Minimum zoom value. */
-ZoomControls.ZOOM_MIN = 1;
-
-/** @constant {number} ZOOM_MAX Maximum zoom value. */
-ZoomControls.ZOOM_MAX = 100;

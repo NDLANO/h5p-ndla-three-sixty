@@ -24,3 +24,9 @@ export const DEFAULT_ROTATION_ORDER = 'YXZ';
 
 /** @constant {string} DEFAULT_ROATIO Default aspect ratio. */
 export const DEFAULT_RATIO = 16 / 9;
+
+/** @constant {number} ZOOM_MIN Minimum zoom value. */
+export const ZOOM_MIN = 1;
+
+/** @constant {number} ZOOM_MAX Maximum zoom value. */
+export const ZOOM_MAX = 100;
