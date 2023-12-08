@@ -249,6 +249,12 @@ export default class PositionControls extends H5P.EventDispatcher {
     if (!event.cancelable) {
       return;
     }
+
+    // Only move if one finger is used, zoom-controls will handle two finger movement
+    if (event.touches.length > 1) {
+      return;
+    }
+
     event.preventDefault();
     event.stopPropagation();
 
