@@ -54,10 +54,18 @@ export default class ZoomControls extends H5P.EventDispatcher {
     return Math.pow(0.95, this.zoomSpeed);
   }
 
+  /**
+   * Check if dolly in is disabled.
+   * @returns {boolean} True if dolly in is disabled.
+   */
   isDollyInDisabled() {
     return this.object.isPerspectiveCamera && this.object.fov <= this.minFov;
   }
 
+  /**
+   * Check if dolly out is disabled.
+   * @returns {boolean} True if dolly out is disabled.
+   */
   isDollyOutDisabled() {
     return this.object.isPerspectiveCamera && this.object.fov >= this.maxFov;
   }
@@ -67,6 +75,10 @@ export default class ZoomControls extends H5P.EventDispatcher {
    * @param {number} dollyScale How much to dolly in.
    */
   dollyIn(dollyScale) {
+    if (this.isDollyInDisabled()) {
+      return;
+    }
+
     if (dollyScale === undefined) {
       dollyScale = this.getZoomScale();
     }
@@ -79,6 +91,9 @@ export default class ZoomControls extends H5P.EventDispatcher {
       this.object.zoom = Math.max(this.minZoom, Math.min(this.maxZoom, this.object.zoom * dollyScale));
       this.object.updateProjectionMatrix();
     }
+
+    const zoomEvent = new H5P.Event('zoom');
+    this.trigger(zoomEvent);
   }
 
   /**
@@ -86,6 +101,10 @@ export default class ZoomControls extends H5P.EventDispatcher {
    * @param {number} dollyScale How much to dolly out.
    */
   dollyOut(dollyScale) {
+    if (this.isDollyOutDisabled()) {
+      return;
+    }
+
     if (dollyScale === undefined) {
       dollyScale = this.getZoomScale();
     }
@@ -98,6 +117,9 @@ export default class ZoomControls extends H5P.EventDispatcher {
       this.object.zoom = Math.max(this.minZoom, Math.min(this.maxZoom, this.object.zoom / dollyScale));
       this.object.updateProjectionMatrix();
     }
+
+    const zoomEvent = new H5P.Event('zoom');
+    this.trigger(zoomEvent);
   }
 
   /**
@@ -118,10 +140,10 @@ export default class ZoomControls extends H5P.EventDispatcher {
    * @param {TouchEvent} event Touch event.
    */
   handleTouchStartDolly(event) {
-    var dx = event.touches[0].pageX - event.touches[1].pageX;
-    var dy = event.touches[0].pageY - event.touches[1].pageY;
+    const dx = event.touches[0].pageX - event.touches[1].pageX;
+    const dy = event.touches[0].pageY - event.touches[1].pageY;
 
-    var distance = Math.sqrt(dx * dx + dy * dy);
+    const distance = Math.sqrt(dx * dx + dy * dy);
 
     this.dollyStart.set(0, distance);
   }
@@ -131,10 +153,10 @@ export default class ZoomControls extends H5P.EventDispatcher {
    * @param {TouchEvent} event Touch event.
    */
   handleTouchMoveDolly(event) {    
-    var dx = event.touches[0].pageX - event.touches[1].pageX;
-    var dy = event.touches[0].pageY - event.touches[1].pageY;
+    const dx = event.touches[0].pageX - event.touches[1].pageX;
+    const dy = event.touches[0].pageY - event.touches[1].pageY;
 
-    var distance = Math.sqrt(dx * dx + dy * dy);
+    const distance = Math.sqrt(dx * dx + dy * dy);
 
     this.dollyEnd.set(0, distance);
 
