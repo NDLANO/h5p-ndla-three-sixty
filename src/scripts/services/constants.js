@@ -29,4 +29,4 @@ export const DEFAULT_RATIO = 16 / 9;
 export const ZOOM_MIN = 1;
 
 /** @constant {number} ZOOM_MAX Maximum zoom value. */
-export const ZOOM_MAX = 100;
+export const ZOOM_MAX = 15;

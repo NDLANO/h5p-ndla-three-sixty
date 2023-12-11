@@ -24,10 +24,10 @@ export default class ZoomControls extends H5P.EventDispatcher {
     this.enabled = true;
     
     // How far you can dolly in and out ( PerspectiveCamera only )
-    this.minFov = 20;
+    this.minFov = 15;
     this.maxFov = isPanorama ? FOV_PANORAMA : FOV_SPHERE;
 
-    // How far you can zoom in and out ( OrthographicCamera only )
+    // How far you can zoom in and out ( OrthographicCamera )
     this.minZoom = ZOOM_MIN;
     this.maxZoom = ZOOM_MAX;
 
@@ -40,10 +40,10 @@ export default class ZoomControls extends H5P.EventDispatcher {
     this.dollyDelta = new H5P.ThreeJS.Vector2();
 
     // Register event listeners
-    element.addEventListener('wheel', this.onMouseWheel.bind(this), false);
-    element.addEventListener('touchstart', this.onTouchStart.bind(this), false);
-    element.addEventListener('touchmove', this.onTouchMove.bind(this), false);
-    element.addEventListener('keydown', this.onKeyDown.bind(this), false);
+    element.addEventListener('wheel', this.handleMouseWheel.bind(this), false);
+    element.addEventListener('touchstart', this.handleTouchStart.bind(this), false);
+    element.addEventListener('touchmove', this.handleTouchMove.bind(this), false);
+    element.addEventListener('keydown', this.handleKeyDown.bind(this), false);
   }
 
   /**
@@ -59,7 +59,10 @@ export default class ZoomControls extends H5P.EventDispatcher {
    * @returns {boolean} True if dolly in is disabled.
    */
   isDollyInDisabled() {
-    return this.object.isPerspectiveCamera && this.object.fov <= this.minFov;
+    if (this.object.isPerspectiveCamera) {
+      return this.object.fov <= this.minFov;
+    }
+    return this.object.zoom >= this.maxZoom;
   }
 
   /**
@@ -67,7 +70,10 @@ export default class ZoomControls extends H5P.EventDispatcher {
    * @returns {boolean} True if dolly out is disabled.
    */
   isDollyOutDisabled() {
-    return this.object.isPerspectiveCamera && this.object.fov >= this.maxFov;
+    if (this.object.isPerspectiveCamera) {
+      return this.object.isPerspectiveCamera && this.object.fov >= this.maxFov;
+    }
+    return this.object.zoom <= this.minZoom;
   }
 
   /**
@@ -87,8 +93,8 @@ export default class ZoomControls extends H5P.EventDispatcher {
       this.object.fov = Math.max(this.minFov, Math.min(this.maxFov, this.object.fov * dollyScale));
       this.object.updateProjectionMatrix();
     }
-    else if (this.object.isOrthographicCamera) {
-      this.object.zoom = Math.max(this.minZoom, Math.min(this.maxZoom, this.object.zoom * dollyScale));
+    else {
+      this.object.zoom = Math.max(this.minZoom, Math.min(this.maxZoom, this.object.zoom / dollyScale));
       this.object.updateProjectionMatrix();
     }
 
@@ -113,8 +119,8 @@ export default class ZoomControls extends H5P.EventDispatcher {
       this.object.fov = Math.max(this.minFov, Math.min(this.maxFov, this.object.fov / dollyScale));
       this.object.updateProjectionMatrix();
     }
-    else if (this.object.isOrthographicCamera) {
-      this.object.zoom = Math.max(this.minZoom, Math.min(this.maxZoom, this.object.zoom / dollyScale));
+    else {
+      this.object.zoom = Math.max(this.minZoom, Math.min(this.maxZoom, this.object.zoom * dollyScale));
       this.object.updateProjectionMatrix();
     }
 
@@ -127,6 +133,13 @@ export default class ZoomControls extends H5P.EventDispatcher {
    * @param {WheelEvent} event Mouse wheel event.
    */
   handleMouseWheel(event) {
+    if (!this.enableZoom) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
     if (event.deltaY < 0) {
       this.dollyIn(this.getZoomScale());
     } 
@@ -139,7 +152,15 @@ export default class ZoomControls extends H5P.EventDispatcher {
    * Handle touch start.
    * @param {TouchEvent} event Touch event.
    */
-  handleTouchStartDolly(event) {
+  handleTouchStart(event) {
+    if (!this.enableZoom) {
+      return;
+    }
+    // Only zoom if two fingers are used, pointer-controls will handle one finger movement
+    if (event.touches.length !== 2) {
+      return;
+    }
+
     const dx = event.touches[0].pageX - event.touches[1].pageX;
     const dy = event.touches[0].pageY - event.touches[1].pageY;
 
@@ -152,7 +173,18 @@ export default class ZoomControls extends H5P.EventDispatcher {
    * Handle touch move.
    * @param {TouchEvent} event Touch event.
    */
-  handleTouchMoveDolly(event) {    
+  handleTouchMove(event) {
+    if (!this.enableZoom) {
+      return;
+    }
+    // Only zoom if two fingers are used, pointer-controls will handle one finger movement
+    if (event.touches.length !== 2) {   
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
     const dx = event.touches[0].pageX - event.touches[1].pageX;
     const dy = event.touches[0].pageY - event.touches[1].pageY;
 
@@ -175,6 +207,10 @@ export default class ZoomControls extends H5P.EventDispatcher {
    * @param {KeyboardEvent} event Keyboard event.
    */
   handleKeyDown(event) {
+    if (!this.enableZoom) {
+      return;
+    }
+
     switch (event.key) {
       case '-': // minus key
         this.dollyOut();
@@ -183,67 +219,5 @@ export default class ZoomControls extends H5P.EventDispatcher {
         this.dollyIn();
         break;
     }
-  }
-
-  /**
-   * Handle touch start.
-   * @param {TouchEvent} event Touch event.
-   */
-  onTouchStart(event) {
-    if (this.enableZoom === false) return;
-
-    // Only zoom if two fingers are used, pointer-controls will handle one finger movement
-    if (event.touches.length === 2) {
-      this.handleTouchStartDolly(event);
-    }
-  }
-
-  /**
-   * Handle touch move.
-   * @param {TouchEvent} event Touch event.
-   */
-  onTouchMove(event) {
-    if (this.enableZoom === false) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    // Only zoom if two fingers are used, pointer-controls will handle one finger movement
-    if (event.touches.length === 2) {
-      this.handleTouchMoveDolly(event);
-    }
-  }
-
-  /**
-   * Handle touch end.
-   * @param {TouchEvent} event Touch event.
-   */
-  onTouchEnd(event) {
-    if (this.enableZoom === false) return;
-
-    this.handleTouchEnd(event);
-  }
-
-  /**
-   * Handle mouse wheel.
-   * @param {WheelEvent} event Mouse wheel event.
-   */
-  onMouseWheel(event) {
-    if (this.enableZoom === false) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    this.handleMouseWheel(event);
-  }
-
-  /**
-   * Handle key down.
-   * @param {KeyboardEvent} event Keyboard event.
-   */
-  onKeyDown(event) {
-    if (this.enableZoom === false) return;
-
-    this.handleKeyDown(event);
   }
 }
