@@ -86,11 +86,27 @@ export default class Initialization {
       // Set outer bounds for camera so it does not loop around.
       // It can max see max 90 degrees up and down
       const radsFromCameraCenter = Util.toRad(this.fieldOfView) / 2;
-      if (pitch + radsFromCameraCenter > MAX_PITCH) {
-        pitch = MAX_PITCH - radsFromCameraCenter;
+
+      if (this.options.isPanorama) {
+        // Base max pitch on field of view
+        const MAX_PITCH_PANORAMA = (Util.toRad(this.fieldOfView) - Util.toRad(this.camera.fov)) / 2;
+        const maxPitch = Math.min(MAX_PITCH_PANORAMA, MAX_PITCH);
+
+        if (pitch > maxPitch) {
+          pitch = maxPitch;
+        }
+        else if (pitch < -maxPitch) {
+          pitch = -maxPitch;
+        }
       }
-      else if (pitch - radsFromCameraCenter < -MAX_PITCH) {
-        pitch = -MAX_PITCH + radsFromCameraCenter;
+      else {
+        // Keep pitch between -90 and 90 degrees
+        if (pitch + radsFromCameraCenter > MAX_PITCH) {
+          pitch = MAX_PITCH - radsFromCameraCenter;
+        }
+        else if (pitch - radsFromCameraCenter < -MAX_PITCH) {
+          pitch = -MAX_PITCH + radsFromCameraCenter;
+        }
       }
 
       // Keep yaw between 0 and 2PI
@@ -123,5 +139,29 @@ export default class Initialization {
       this.css2dRenderer.domElement,
       this.options.isPanorama
     );
+
+    // Make sure we don't see the black background when zooming out in panorama,
+    // by triggering 'move' to adjust the view.
+    if (this.options.isPanorama) {
+      this.zoomControls.on('zoomout', () => {
+        if (!this.cameraControls) {
+          return;
+        }
+        // If the camera has not been moved, we don't need to trigger a move event
+        if (!this.cameraControls.startX && !this.cameraControls.startY) {
+          return;
+        }
+
+        const moveEvent = new H5P.Event('move');
+        moveEvent.alpha = this.cameraControls.alpha ?? 0;
+        moveEvent.alphaDelta = this.cameraControls.alphaDelta ?? 0;
+        moveEvent.beta = this.cameraControls.beta ?? 0;
+        moveEvent.betaDelta = this.cameraControls.betaDelta ?? 0;
+
+        this.preventDeviceOrientation = true;
+
+        this.cameraControls.trigger(moveEvent);
+      });
+    }
   }
 }

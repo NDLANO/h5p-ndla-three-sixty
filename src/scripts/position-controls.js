@@ -142,10 +142,6 @@ export default class PositionControls extends H5P.EventDispatcher {
     // Prepare move event
     const moveEvent = new H5P.Event('move');
 
-    if (this.options.isPanorama) {
-      deltaY = 0;
-    }
-
     // Update position relative to cursor speed
     moveEvent.alphaDelta = deltaX / friction;
     moveEvent.betaDelta = deltaY / friction;
