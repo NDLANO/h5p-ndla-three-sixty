@@ -98,7 +98,7 @@ export default class ZoomControls extends H5P.EventDispatcher {
       this.object.updateProjectionMatrix();
     }
 
-    const zoomEvent = new H5P.Event('zoom');
+    const zoomEvent = new H5P.Event('zoomin');
     this.trigger(zoomEvent);
   }
 
@@ -124,7 +124,7 @@ export default class ZoomControls extends H5P.EventDispatcher {
       this.object.updateProjectionMatrix();
     }
 
-    const zoomEvent = new H5P.Event('zoom');
+    const zoomEvent = new H5P.Event('zoomout');
     this.trigger(zoomEvent);
   }
 
