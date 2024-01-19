@@ -12,16 +12,14 @@ export default class ZoomControls extends H5P.EventDispatcher {
    * @param {object} object The camera object to manipulate.
    * @param {H5P.ThreeJS.Object3D} element DOM element of the ThreeJS object.
    * @param {boolean} isPanorama Whether the object is a panorama.
+   * @param {boolean} enableZoom Whether to enable zoom.
    */
-  constructor(object, element, isPanorama) {
+  constructor(object, element, isPanorama, enableZoom) {
     super();
 
     this.object = object;
 
     this.element = (element !== undefined) ? element : document;
-
-    // Set to false to disable this control
-    this.enabled = true;
     
     // How far you can dolly in and out ( PerspectiveCamera only )
     this.minFov = 15;
@@ -32,7 +30,7 @@ export default class ZoomControls extends H5P.EventDispatcher {
     this.maxZoom = ZOOM_MAX;
 
     // Set to false to disable zooming
-    this.enableZoom = true;
+    this.enableZoom = enableZoom;
     this.zoomSpeed = 1.0;
 
     this.dollyStart = new H5P.ThreeJS.Vector2();
@@ -44,6 +42,14 @@ export default class ZoomControls extends H5P.EventDispatcher {
     element.addEventListener('touchstart', this.handleTouchStart.bind(this), false);
     element.addEventListener('touchmove', this.handleTouchMove.bind(this), false);
     element.addEventListener('keydown', this.handleKeyDown.bind(this), false);
+  }
+
+  /**
+   * Set state for enable zoom.
+   * @param {boolean} state If true, zoom is enabled.
+   */
+  setEnableZoom(state) {
+    this.enableZoom = state;
   }
 
   /**
