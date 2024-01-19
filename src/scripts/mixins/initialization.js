@@ -141,26 +141,16 @@ export default class Initialization {
     );
 
     // Make sure we don't see the black background when zooming out in panorama,
-    // by triggering 'move' to adjust the view.
+    // by using cameraControls move to adjust the view.
     if (this.options.isPanorama) {
       this.zoomControls.on('zoomout', () => {
         if (!this.cameraControls) {
           return;
         }
-        // If the camera has not been moved, we don't need to trigger a move event
-        if (!this.cameraControls.startX && !this.cameraControls.startY) {
-          return;
-        }
 
-        const moveEvent = new H5P.Event('move');
-        moveEvent.alpha = this.cameraControls.alpha ?? 0;
-        moveEvent.alphaDelta = this.cameraControls.alphaDelta ?? 0;
-        moveEvent.beta = this.cameraControls.beta ?? 0;
-        moveEvent.betaDelta = this.cameraControls.betaDelta ?? 0;
-
-        this.preventDeviceOrientation = true;
-
-        this.cameraControls.trigger(moveEvent);
+        this.cameraControls.start();
+        this.cameraControls.move(0, 0, DEFAULT_FRICTION);
+        this.cameraControls.end();
       });
     }
   }
