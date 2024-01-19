@@ -133,11 +133,15 @@ export default class Initialization {
     });
   }
 
+  /**
+   * Add zoom controls.
+   */
   buildZoomControls() {
     this.zoomControls = new ZoomControls(
       this.camera, 
       this.css2dRenderer.domElement,
-      this.options.isPanorama
+      this.options.isPanorama,
+      this.options.enableZoom
     );
 
     // Make sure we don't see the black background when zooming out in panorama,
