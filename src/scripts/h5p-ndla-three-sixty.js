@@ -40,12 +40,14 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
 
     this.fieldOfView = options.isPanorama ? FOV_PANORAMA : FOV_SPHERE;
 
-    // TODO: ThreeSixty should not have to deal with this, this belongs in a
-    // a separate collection/array class. (ThreeSixty should just add or remove
-    // elements from the 3d world, not keep an indexed mapping for the
-    // consumer/user of this library.)
+    /*
+     * // TODO: ThreeSixty should not have to deal with this, this belongs in a
+     * a separate collection/array class. (ThreeSixty should just add or remove
+     * elements from the 3d world, not keep an indexed mapping for the
+     * consumer/user of this library.). Originally added by H5P Group. True, but
+     * not urgent now.
+     */
     this.threeElements = [];
-
     this.preventCameraMovement = false;
     this.renderLoopId = null;
 
@@ -149,10 +151,6 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
 
     this.camera.rotation.y = -yaw;
     this.camera.rotation.x = this.options.isPanorama ? 0 : pitch;
-
-    // TODO: Figure out why this is here and what it does
-    // Commenting this out. Let's see if somebody notices ...
-    // this.trigger('movestop', { pitch: pitch, yaw: yaw });
   }
 
   /**
@@ -271,7 +269,6 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
 
   /**
    * Find the threeElement for the given element.
-   * TODO: Move into a separate collection handling class
    * @param {Element} element Element.
    * @returns {H5P.ThreeJS.CSS3DObject} Corresponding ThreeJS CSS3DObject.
    */
@@ -292,19 +289,13 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
     if (this.sphere) {
       this.disposeSphere();
     }
-    this.createSphere();
 
-    this.triggerFirstRenderEvent = true;
-  }
-
-  /**
-   * Update cylinder.
-   */
-  updateCylinder() {
-    if (this.sphere) {
-      this.disposeSphere();
+    if (this.options.isPanorama) {
+      this.createCylinder();
     }
-    this.createCylinder();
+    else {
+      this.createSphere();
+    }
 
     this.triggerFirstRenderEvent = true;
   }
@@ -338,11 +329,9 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
    * @param {string} label Label.
    */
   setAriaLabel(label) {
-    // TODO: Separate setting for document role?
     this.css2dRenderer.domElement.setAttribute('aria-label', label);
     this.css2dRenderer.domElement.setAttribute('role', 'document');
 
-    // TODO: Separate setting for document role?
     this.css3dRenderer.domElement.setAttribute('aria-label', label);
     this.css3dRenderer.domElement.setAttribute('role', 'document');
   }
@@ -402,7 +391,6 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
 
   /**
    * Set element's position in the 3d world, always facing the camera.
-   * TODO: Check why this was build static and why external code should use it.
    * @param {H5P.ThreeJS.CSS3DObject} threeElement CSS3DObject.
    * @param {object} position Position object.
    * @param {number} position.yaw Radians from 0 to Math.PI*2 (0-360).
