@@ -146,16 +146,14 @@ export default class Initialization {
 
     // Make sure we don't see the black background when zooming out in panorama,
     // by using cameraControls move to adjust the view.
-    if (this.options.isPanorama) {
-      this.zoomControls.on('zoomout', () => {
-        if (!this.cameraControls) {
-          return;
-        }
-
-        this.cameraControls.start();
-        this.cameraControls.move(0, 0, DEFAULT_FRICTION);
-        this.cameraControls.end();
-      });
-    }
+    this.zoomControls.on('zoomout', () => {
+      if (!this.cameraControls || !this.options.isPanorama) {
+        return;
+      }
+        
+      this.cameraControls.start();
+      this.cameraControls.move(0, 0, DEFAULT_FRICTION);
+      this.cameraControls.end();
+    });
   }
 }

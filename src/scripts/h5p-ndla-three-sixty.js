@@ -127,12 +127,16 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
     this.options.isPanorama = isPanorama;
     this.options.enableZoom = enableZoom;
 
-    this.camera.fov = this.options.isPanorama ? FOV_PANORAMA : FOV_SPHERE;
+    const fov = this.options.isPanorama ? FOV_PANORAMA : FOV_SPHERE;
+
+    this.camera.fov = fov;
+    this.fieldOfView = fov;
 
     this.camera.updateProjectionMatrix();
 
     this.cameraControls.setPanorama(this.options.isPanorama);
     this.zoomControls.setEnableZoom(this.options.enableZoom);
+    this.zoomControls.setMaxFov(fov);
   }
 
   /**

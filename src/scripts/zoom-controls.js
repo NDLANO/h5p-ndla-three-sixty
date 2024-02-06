@@ -53,6 +53,14 @@ export default class ZoomControls extends H5P.EventDispatcher {
   }
 
   /**
+   * Set state for max fov.
+   * @param {number} fov Max fov.
+   */
+  setMaxFov(fov) {
+    this.maxFov = fov;
+  }
+
+  /**
    * Get zoom scale.
    * @returns {number} Zoom scale.
    */
