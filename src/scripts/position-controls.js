@@ -142,10 +142,6 @@ export default class PositionControls extends H5P.EventDispatcher {
     // Prepare move event
     const moveEvent = new H5P.Event('move');
 
-    if (this.options.isPanorama) {
-      deltaY = 0;
-    }
-
     // Update position relative to cursor speed
     moveEvent.alphaDelta = deltaX / friction;
     moveEvent.betaDelta = deltaY / friction;
@@ -249,6 +245,12 @@ export default class PositionControls extends H5P.EventDispatcher {
     if (!event.cancelable) {
       return;
     }
+
+    // Only move if one finger is used, zoom-controls will handle two finger movement
+    if (event.touches.length > 1) {
+      return;
+    }
+
     event.preventDefault();
     event.stopPropagation();
 

@@ -21,6 +21,7 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
    * @param {number} options.cameraStartPosition.pitch 0 = Center of image.
    * @param {number} options.segments Number of segments.
    * @param {boolean} options.isPanorama If true, scene is panorama scene.
+   * @param {boolean} options.enableZoom If true, enable zoom.
    */
   constructor(sourceElement, options) {
     super();
@@ -33,7 +34,8 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
       cameraStartPosition: { pitch: 0, yaw: 0 },
       ratio: DEFAULT_RATIO,
       segments: 4,
-      isPanorama: false
+      isPanorama: false,
+      enableZoom: true
     }, options);
 
     this.sourceElement = sourceElement;
@@ -64,6 +66,7 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
     this.buildCamera(options.cameraStartPosition);
     this.buildRenderers();
     this.buildCameraControls();
+    this.buildZoomControls();
   }
 
   /**
@@ -117,16 +120,23 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
    * Useful for changing scenes.
    * @param {HTMLElement} element Video or image source.
    * @param {boolean} isPanorama If true, source is panorama scene.
+   * @param {boolean} enableZoom If true, enable zoom.
    */
-  setSourceElement(element, isPanorama) {
+  setSourceElement(element, isPanorama, enableZoom) {
     this.sourceElement = element;
     this.options.isPanorama = isPanorama;
+    this.options.enableZoom = enableZoom;
 
-    this.camera.fov = this.options.isPanorama ? FOV_PANORAMA : FOV_SPHERE;
+    const fov = this.options.isPanorama ? FOV_PANORAMA : FOV_SPHERE;
+
+    this.camera.fov = fov;
+    this.fieldOfView = fov;
 
     this.camera.updateProjectionMatrix();
 
     this.cameraControls.setPanorama(this.options.isPanorama);
+    this.zoomControls.setEnableZoom(this.options.enableZoom);
+    this.zoomControls.setMaxFov(fov);
   }
 
   /**
