@@ -6,24 +6,24 @@
     position: absolute;
     top: 0;
     left: 0;
-  }
 
-  &.h5p-three-sixty-controls {
-    cursor: move;
-    cursor: grab;
-    cursor: -moz-grab;
-    cursor: -webkit-grab;
-    user-select: none;
-    -ms-user-select: none;
-
-    &:active {
-      cursor: grabbing;
-      cursor: -moz-grabbing;
-      cursor: -webkit-grabbing;
-    }
-
-    .img {
-      -webkit-user-drag: none;
+    &.h5p-three-sixty-controls {
+      cursor: move;
+      cursor: grab;
+      cursor: -moz-grab;
+      cursor: -webkit-grab;
+      user-select: none;
+      -ms-user-select: none;
+  
+      &:active {
+        cursor: grabbing;
+        cursor: -moz-grabbing;
+        cursor: -webkit-grabbing;
+      }
+  
+      .img {
+        -webkit-user-drag: none;
+      }
     }
   }
 }
