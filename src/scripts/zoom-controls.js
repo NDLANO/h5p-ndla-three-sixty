@@ -1,4 +1,4 @@
-import { FOV_PANORAMA, FOV_SPHERE, ZOOM_MIN, ZOOM_MAX } from '@services/constants';
+import { FOV_PANORAMA, FOV_SPHERE, ZOOM_MIN, ZOOM_MAX, ZOOM_SPEED } from '@services/constants';
 
 /** 
  * Zoom controls for ThreeJS based on OrbitControls.js
@@ -31,7 +31,7 @@ export default class ZoomControls extends H5P.EventDispatcher {
 
     // Set to false to disable zooming
     this.enableZoom = enableZoom;
-    this.zoomSpeed = 1.0;
+    this.zoomSpeed = ZOOM_SPEED;
 
     this.dollyStart = new H5P.ThreeJS.Vector2();
     this.dollyEnd = new H5P.ThreeJS.Vector2();

@@ -30,3 +30,6 @@ export const ZOOM_MIN = 1;
 
 /** @constant {number} ZOOM_MAX Maximum zoom value. */
 export const ZOOM_MAX = 15;
+
+/** @constant {number} ZOOM_SPEED Zoom speed */
+export const ZOOM_SPEED = 2.5;
