@@ -145,14 +145,16 @@ export default class PositionControls extends H5P.EventDispatcher {
     // Prepare move event
     const moveEvent = new H5P.Event('move');
 
-    // Update friction based on field of view (zoom)
-    const maxFov = this.options.isPanorama ? FOV_PANORAMA : FOV_SPHERE;
-    const frictionFactorZoom = this.camera.fov / maxFov;
-    const updatedFriction = friction / frictionFactorZoom;
+    if (this.camera?.fov) {
+      // Update friction based on field of view (zoom)
+      const maxFov = this.options.isPanorama ? FOV_PANORAMA : FOV_SPHERE;
+      const frictionFactorZoom = this.camera.fov / maxFov;
+      friction = friction / frictionFactorZoom;
+    }
 
     // Update position relative to cursor speed
-    moveEvent.alphaDelta = deltaX / updatedFriction;
-    moveEvent.betaDelta = deltaY / updatedFriction;
+    moveEvent.alphaDelta = deltaX / friction;
+    moveEvent.betaDelta = deltaY / friction;
     this.alpha = (this.alpha + moveEvent.alphaDelta) % (Math.PI * 2); // Max 360
     this.beta = (this.beta + moveEvent.betaDelta) % (Math.PI * 2); // Max 180
 
