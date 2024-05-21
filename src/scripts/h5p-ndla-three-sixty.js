@@ -241,9 +241,17 @@ export default class NDLAThreeSixty extends H5P.EventDispatcher {
 
       // Update element position according to movement
       elementControls.on('move', (event) => {
+        let pitch = elementControls.startX - event.beta;
+
+        // Limit pitch for panorama
+        if (this.options.isPanorama) {
+          const MAX_PITCH = 0.42;
+          pitch = Math.max(Math.min(pitch, MAX_PITCH ), -MAX_PITCH);
+        }
+        
         NDLAThreeSixty.setElementPosition(threeElement, {
           yaw: elementControls.startY + event.alpha,
-          pitch: elementControls.startX - event.beta
+          pitch: pitch
         });
       });
 
