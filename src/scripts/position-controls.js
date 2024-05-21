@@ -1,4 +1,5 @@
 import Util from '@services/util';
+import { FOV_PANORAMA, FOV_SPHERE } from '@services/constants';
 
 export default class PositionControls extends H5P.EventDispatcher {
 
@@ -6,16 +7,18 @@ export default class PositionControls extends H5P.EventDispatcher {
    * Class for manipulating element position using different controls.
    * @class
    * @param {H5P.ThreeJS.Object3D} element ThreeJS Object3D.
+   * @param {H5P.ThreeJS.PerspectiveCamera} [camera] Camera object.
    * @param {object} [options] Options.
    * @param {number} [options.friction] Determines the speed of the movement, higher = slower.
    * @param {boolean} [options.shouldInvert] Invert controls for camera.
    * @param {boolean} [options.isCamera] Is camera.
    * @param {boolean} [options.isPanorama] If true, scene is a panarama scene.
    */
-  constructor(element, options = {}) {
+  constructor(element, camera, options = {}) {
     super();
 
     this.element = element;
+    this.camera = camera;
 
     this.options = Util.extend({
       friction: 800,
@@ -141,6 +144,13 @@ export default class PositionControls extends H5P.EventDispatcher {
   move(deltaX, deltaY, friction) {
     // Prepare move event
     const moveEvent = new H5P.Event('move');
+
+    if (this.camera?.fov) {
+      // Update friction based on field of view (zoom)
+      const maxFov = this.options.isPanorama ? FOV_PANORAMA : FOV_SPHERE;
+      const frictionFactorZoom = this.camera.fov / maxFov;
+      friction = friction / frictionFactorZoom;
+    }
 
     // Update position relative to cursor speed
     moveEvent.alphaDelta = deltaX / friction;

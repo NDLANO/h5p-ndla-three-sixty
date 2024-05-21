@@ -58,6 +58,7 @@ export default class Initialization {
   buildCameraControls() {
     this.cameraControls = new PositionControls(
       this.css2dRenderer.domElement,
+      this.camera,
       {
         friction: DEFAULT_FRICTION,
         invert: true,
