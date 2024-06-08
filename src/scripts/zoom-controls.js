@@ -29,6 +29,8 @@ export default class ZoomControls extends H5P.EventDispatcher {
     this.minZoom = ZOOM_MIN;
     this.maxZoom = ZOOM_MAX;
 
+    this.zoomPercentage = 0;
+
     // Set to false to disable zooming
     this.enableZoom = enableZoom;
     this.zoomSpeed = ZOOM_SPEED;
@@ -58,6 +60,18 @@ export default class ZoomControls extends H5P.EventDispatcher {
    */
   setMaxFov(fov) {
     this.maxFov = fov;
+  }
+
+  /**
+   * Set zoom percentage.
+   */
+  setZoomPercentage() {
+    if (this.object.isPerspectiveCamera) {
+      this.zoomPercentage = 100 - Math.round((this.object.fov - this.minFov) / (this.maxFov - this.minFov) * 100);
+    }
+    else {
+      this.zoomPercentage = 100 - Math.round((this.object.zoom - this.minZoom) / (this.maxZoom - this.minZoom) * 100);
+    }
   }
 
   /**
@@ -112,6 +126,7 @@ export default class ZoomControls extends H5P.EventDispatcher {
       this.object.updateProjectionMatrix();
     }
 
+    this.setZoomPercentage();
     const zoomEvent = new H5P.Event('zoomin');
     this.trigger(zoomEvent);
   }
@@ -138,6 +153,7 @@ export default class ZoomControls extends H5P.EventDispatcher {
       this.object.updateProjectionMatrix();
     }
 
+    this.setZoomPercentage();
     const zoomEvent = new H5P.Event('zoomout');
     this.trigger(zoomEvent);
   }
