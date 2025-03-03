@@ -141,7 +141,7 @@ export default class Initialization {
    */
   buildZoomControls() {
     this.zoomControls = new ZoomControls(
-      this.camera, 
+      this.camera,
       this.css2dRenderer.domElement,
       this.options.isPanorama,
       this.options.enableZoom
@@ -153,7 +153,7 @@ export default class Initialization {
       if (!this.cameraControls || !this.options.isPanorama) {
         return;
       }
-        
+
       this.cameraControls.start();
       this.cameraControls.move(0, 0, DEFAULT_FRICTION);
       this.cameraControls.end();
