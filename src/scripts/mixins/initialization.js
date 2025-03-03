@@ -119,6 +119,8 @@ export default class Initialization {
       // Allow infinite yaw rotations
       this.camera.rotation.y = yaw;
       this.camera.rotation.x = pitch;
+
+      this.trigger(event);
     });
 
     // Relay camera movement stopped event
