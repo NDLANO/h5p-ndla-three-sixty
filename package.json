@@ -1,6 +1,5 @@
 {
   "name": "h5p-ndla-three-sixty",
-  "version": "0.5.1",
   "description": "H5P link to ThreeJS",
   "private": true,
   "scripts": {
